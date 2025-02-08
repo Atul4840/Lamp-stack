@@ -1,18 +1,15 @@
 <?php
-$servername = "mysql";  // Change to "localhost" if not using Docker
+$servername = "mysql";   // use .env i just used hard code for easiness
 $username = "user";
 $password = "password";
 $dbname = "testdb";
 
-// Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Create table if not exists
 $tableQuery = "CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -20,13 +17,11 @@ $tableQuery = "CREATE TABLE IF NOT EXISTS users (
 )";
 $conn->query($tableQuery);
 
-// Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = trim($_POST["name"]);
     $email = trim($_POST["email"]);
 
     if (!empty($name) && !empty($email)) {
-        // Check if email already exists
         $checkStmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
         $checkStmt->bind_param("s", $email);
         $checkStmt->execute();
@@ -35,7 +30,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($checkStmt->num_rows > 0) {
             echo "<p style='color:red;'>Email already exists! Please use a different email.</p>";
         } else {
-            // Insert new record
             $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
             $stmt->bind_param("ss", $name, $email);
 
@@ -52,7 +46,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-// Fetch all records
 $result = $conn->query("SELECT * FROM users");
 ?>
 
